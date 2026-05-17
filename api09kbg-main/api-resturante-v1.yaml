@@ -1,0 +1,449 @@
+openapi: 3.0.3
+info:
+  title: API del Restaurante La Parrilla
+  description: API para gestionar el menú, pedidos y reservas del restaurante. Ejemplo.
+  version: 1.0.0
+  contact:
+    email: admin@laparrilla.es
+
+servers:
+  - url: https://api.laparrilla.es/v1
+    description: Servidor de producción
+
+paths:
+  /platos:
+    get:
+      summary: Obtener todos los platos del menú
+      description: Devuelve una lista con todos los platos disponibles
+      responses:
+        '200':
+          description: Lista de platos recuperada exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Plato'
+        '500':
+          description: Error interno del servidor
+
+    post:
+      summary: Añadir un nuevo plato al menú
+      description: Crea un plato nuevo en la base de datos
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlatoInput'
+      responses:
+        '201':
+          description: Plato creado correctamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Plato'
+        '400':
+          description: Datos del plato inválidos
+
+  /platos/{id}:
+    get:
+      summary: Obtener un plato específico por ID
+      description: Recupera los detalles de un plato concreto
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Identificador único del plato
+          schema:
+            type: integer
+            example: 5
+      responses:
+        '200':
+          description: Plato encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Plato'
+        '404':
+          description: Plato no encontrado
+
+    patch:
+      summary: Actualizar parcialmente un plato
+      description: Modifica algunos campos de un plato existente
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nombre:
+                  type: string
+                precio:
+                  type: number
+                  format: float
+                disponible:
+                  type: boolean
+      responses:
+        '200':
+          description: Plato actualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Plato'
+        '404':
+          description: Plato no encontrado
+
+  /pedidos:
+    get:
+      summary: Listar todos los pedidos
+      description: Obtiene todos los pedidos realizados
+      responses:
+        '200':
+          description: Lista de pedidos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Pedido'
+
+    post:
+      summary: Crear un nuevo pedido
+      description: Registra un pedido en el sistema
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PedidoInput'
+      responses:
+        '201':
+          description: Pedido creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pedido'
+        '400':
+          description: Datos del pedido inválidos
+
+  /pedidos/{pedidoId}:
+    get:
+      summary: Obtener detalles de un pedido
+      description: Consulta la información de un pedido específico
+      parameters:
+        - name: pedidoId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Pedido encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pedido'
+        '404':
+          description: Pedido no encontrado
+
+    patch:
+      summary: Actualizar el estado de un pedido
+      description: Cambia el estado de un pedido (pendiente, preparando, servido)
+      parameters:
+        - name: pedidoId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                estado:
+                  type: string
+                  enum: [pendiente, preparando, servido, cancelado]
+      responses:
+        '200':
+          description: Estado del pedido actualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pedido'
+
+  /mesas:
+    get:
+      summary: Listar todas las mesas del restaurante
+      description: Devuelve información sobre las mesas disponibles
+      responses:
+        '200':
+          description: Lista de mesas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Mesa'
+
+  /mesas/{numeroMesa}/reservar:
+    post:
+      summary: Reservar una mesa
+      description: Crea una reserva para una mesa específica
+      parameters:
+        - name: numeroMesa
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReservaInput'
+      responses:
+        '201':
+          description: Reserva creada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reserva'
+        '404':
+          description: Mesa no encontrada
+        '409':
+          description: Mesa ya reservada en ese horario
+
+components:
+  schemas:
+    Plato:
+      type: object
+      required:
+        - id
+        - nombre
+      properties:
+        id:
+          type: integer
+          example: 1
+        nombre:
+          type: string
+          example: "Paella Valenciana"
+        descripcion:
+          type: string
+          example: "Arroz con pollo, conejo y verduras"
+        precio:
+          type: number
+          format: float
+          example: 14.50
+        categoria:
+          type: string
+          enum: [entrante, principal, postre, bebida]
+          example: "principal"
+        alergenos:
+          type: array
+          items:
+            type: string
+          example: ["gluten"]
+        disponible:
+          type: boolean
+          example: true
+        calorias:
+          type: integer
+          example: 650
+
+    PlatoInput:
+      type: object
+      required:
+        - nombre
+        - precio
+      properties:
+        nombre:
+          type: string
+        descripcion:
+          type: string
+        precio:
+          type: number
+          format: float
+          minimum: 0
+        categoria:
+          type: string
+          enum: [entrante, principal, postre, bebida]
+        alergenos:
+          type: array
+          items:
+            type: string
+        disponible:
+          type: boolean
+          default: true
+        calorias:
+          type: integer
+
+    Pedido:
+      type: object
+      required:
+        - id
+        - numeroMesa
+        - items
+        - estado
+      properties:
+        id:
+          type: integer
+          example: 42
+        numeroMesa:
+          type: integer
+          example: 5
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ItemPedido'
+        estado:
+          type: string
+          enum: [pendiente, preparando, servido, cancelado]
+          example: "preparando"
+        precioTotal:
+          type: number
+          format: float
+          example: 45.80
+        fechaHora:
+          type: string
+          format: date-time
+          example: "2026-02-12T14:30:00Z"
+        observaciones:
+          type: string
+          example: "Sin cebolla en la ensalada"
+
+    PedidoInput:
+      type: object
+      required:
+        - items
+      properties:
+        numeroMesa:
+          type: integer
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              platoId:
+                type: integer
+              cantidad:
+                type: integer
+                minimum: 1
+        observaciones:
+          type: string
+
+    ItemPedido:
+      type: object
+      properties:
+        plato:
+          $ref: '#/components/schemas/PlatoResumen'
+        cantidad:
+          type: integer
+          example: 2
+        subtotal:
+          type: number
+          format: float
+          example: 29.00
+
+    PlatoResumen:
+      type: object
+      properties:
+        id:
+          type: integer
+        nombre:
+          type: string
+        precio:
+          type: number
+
+    Mesa:
+      type: object
+      required:
+        - numero
+        - capacidad
+      properties:
+        numero:
+          type: integer
+          example: 3
+        capacidad:
+          type: integer
+          minimum: 1
+          maximum: 12
+          example: 4
+        ubicacion:
+          type: string
+          enum: [interior, terraza, privado]
+          example: "interior"
+        disponible:
+          type: boolean
+          example: true
+
+    Reserva:
+      type: object
+      required:
+        - id
+        - numeroMesa
+        - nombreCliente
+        - fechaHora
+      properties:
+        id:
+          type: integer
+          example: 101
+        numeroMesa:
+          type: integer
+          example: 7
+        nombreCliente:
+          type: string
+          example: "Ana Martínez"
+        telefonoContacto:
+          type: string
+          example: "+34 666 123 456"
+        email:
+          type: string
+          format: email
+          example: "ana@ejemplo.com"
+        numeroComensales:
+          type: integer
+          minimum: 1
+          example: 4
+        fechaHora:
+          type: string
+          format: date-time
+          example: "2026-02-15T20:00:00Z"
+        observaciones:
+          type: string
+          example: "Celebración de cumpleaños"
+        estado:
+          type: string
+          enum: [confirmada, pendiente, cancelada]
+          example: "confirmada"
+
+    ReservaInput:
+      type: object
+      required:
+        - nombreCliente
+        - fechaHora
+        - numeroComensales
+      properties:
+        nombreCliente:
+          type: string
+        telefonoContacto:
+          type: string
+        email:
+          type: string
+          format: email
+        numeroComensales:
+          type: integer
+          minimum: 1
+        fechaHora:
+          type: string
+          format: date-time
+        observaciones:
+          type: string

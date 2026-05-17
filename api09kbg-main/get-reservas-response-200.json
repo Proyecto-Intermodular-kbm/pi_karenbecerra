@@ -1,0 +1,30 @@
+[
+  {
+    "id": 101,
+    "numeroMesa": 7,
+    "ubicacionMesa": "terraza",
+    "capacidadMesa": 4,
+    "nombreCliente": "Carlos Ruiz",
+    "telefonoContacto": "+34 612 345 678",
+    "email": "carlos.ruiz@email.com",
+    "numeroComensales": 3,
+    "fechaHora": "2026-04-15T20:30:00Z",
+    "observaciones": "Alergia al marisco en uno de los comensales",
+    "estado": "confirmada",
+    "creadoEn": "2026-03-07T10:15:00Z"
+  },
+  {
+    "id": 98,
+    "numeroMesa": 2,
+    "ubicacionMesa": "interior",
+    "capacidadMesa": 2,
+    "nombreCliente": "Laura Gómez",
+    "telefonoContacto": "+34 699 876 543",
+    "email": "laura.gomez@email.com",
+    "numeroComensales": 2,
+    "fechaHora": "2026-04-10T14:00:00Z",
+    "observaciones": null,
+    "estado": "pendiente",
+    "creadoEn": "2026-03-05T17:40:00Z"
+  }
+]

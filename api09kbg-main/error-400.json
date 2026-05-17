@@ -1,0 +1,13 @@
+{
+  "error": "Datos de entrada inválidos",
+  "detalles": [
+    {
+      "campo": "fechaHora",
+      "mensaje": "La fecha y hora de la reserva debe ser posterior al momento actual"
+    },
+    {
+      "campo": "numeroComensales",
+      "mensaje": "El número de comensales (6) supera la capacidad máxima de la mesa solicitada (4)"
+    }
+  ]
+}
